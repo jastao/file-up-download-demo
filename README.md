@@ -1,5 +1,7 @@
 # Getting Started
 
+##### TravisCI build status: [![Linux Build Status](https://travis-ci.org/jastao/file-up-download-demo.svg?branch=master)](https://travis-ci.org/jastao/file-up-download-demo)
+
 This is a simple file upload and download application. The frontend interface is written in ReactJS and the backend is 
 written using Spring Boot. We will use a H2-database as our file repository for development environment. In production,
 the file should be saved somewhere in the local server file system. 
