@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.io.FileNotFoundException;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 public class FileResource {
 
     private static final Logger logger = LoggerFactory.getLogger(FileResource.class);
+
+    private static final String ROOT_URI = "/api/v1/files";
 
     private FileRepository fileRepository;
 
@@ -50,11 +53,7 @@ public class FileResource {
 
         // Get the file from repository
         File targetFile = fileRepository.findByFilename(filename)
-                                        .stream().findFirst().get();
-
-        if(targetFile == null) {
-            throw new FileNotFoundException("File do not exist: " + filename);
-        }
+                                        .stream().findFirst().orElseThrow(() -> new FileNotFoundException("File do not exist: " + filename));
 
         // Construct the http headers
         HttpHeaders headers = new HttpHeaders();
@@ -76,7 +75,7 @@ public class FileResource {
                                                         .map(fileMapper::convertFileToFileDTO)
                                                         .collect(Collectors.toList());
 
-        return ResponseEntity.ok(listOfFilenames != null ? listOfFilenames : null);
+        return ResponseEntity.ok(listOfFilenames);
     }
 
     /*
@@ -95,10 +94,12 @@ public class FileResource {
 
         logger.info("POST request - upload file with file name =" + uploadFile.getOriginalFilename());
 
-        fileRepository.save(new File(uploadFile.getOriginalFilename(), uploadFile.getContentType(),
+        File savedFile = fileRepository.save(new File(uploadFile.getOriginalFilename(), uploadFile.getContentType(),
                                      uploadFile.getSize(), uploadFile.getBytes()));
 
-        URI newLocation = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        URI newLocation = UriComponentsBuilder.newInstance()
+                    .scheme("http").host("localhost").port("8080")
+                    .path(ROOT_URI + "/download").queryParam("filename", savedFile.getFilename()).build().toUri();
 
         return ResponseEntity.created(newLocation).build();
     }
