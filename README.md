@@ -52,3 +52,7 @@ the filename. After submitting the request, a http status of "200 OK" is returne
 successfully downloaded.
 
 ![Image of Download File](./images/postman_download_file.jpg)
+
+#### File Upload/Downloader
+
+![Image of File UI](./images/file_ui.jpg)
